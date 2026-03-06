@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4264553E2F5A1A7F00D0F4F4 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4264553D2F5A1A7F00D0F4F4 /* FirebaseFirestore */; };
+		6D75BC632F5A227400168035 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 6D75BC622F5A227400168035 /* Algorithms */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D75BC632F5A227400168035 /* Algorithms in Frameworks */,
 				4264553E2F5A1A7F00D0F4F4 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -71,6 +73,7 @@
 			name = "sublease-go";
 			packageProductDependencies = (
 				4264553D2F5A1A7F00D0F4F4 /* FirebaseFirestore */,
+				6D75BC622F5A227400168035 /* Algorithms */,
 			);
 			productName = "sublease-go";
 			productReference = 42812BC12F57B8F00058985F /* sublease-go.app */;
@@ -102,6 +105,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4264553C2F5A1A7F00D0F4F4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				6D75BC612F5A227400168035 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 42812BC22F57B8F00058985F /* Products */;
@@ -353,6 +357,14 @@
 				minimumVersion = 12.10.0;
 			};
 		};
+		6D75BC612F5A227400168035 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -360,6 +372,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4264553C2F5A1A7F00D0F4F4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		6D75BC622F5A227400168035 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6D75BC612F5A227400168035 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

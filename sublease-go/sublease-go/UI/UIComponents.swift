@@ -50,7 +50,7 @@ struct ListingCard: View {
                 .font(.headline)
 
             HStack(spacing: 8) {
-                Pill(listing.neighborhood)
+                Pill(listing.apartmentBuilding)
                 Pill(listing.furnished ? "Furnished" : "Unfurnished")
             }
         }

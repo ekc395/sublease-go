@@ -9,12 +9,13 @@ import SwiftUI
 
 struct CreateListingView: View {
     @Binding var listings: [Listing]
+    var userId: String = ""
 
     @State private var title = ""
     @State private var description = ""
     @State private var price = ""
     @State private var bedrooms = 1
-    @State private var neighborhood = ""
+    @State private var apartmentBuilding = ""
     @State private var furnished = false
     @State private var error: String?
 
@@ -23,7 +24,7 @@ struct CreateListingView: View {
             Form {
                 Section("Listing") {
                     TextField("Title", text: $title)
-                    TextField("Neighborhood", text: $neighborhood)
+                    TextField("Apartment / Building", text: $apartmentBuilding)
                     TextField("Monthly price", text: $price)
                         .keyboardType(.numberPad)
                     Stepper("Bedrooms: \(bedrooms)", value: $bedrooms, in: 1...10)
@@ -41,17 +42,24 @@ struct CreateListingView: View {
                         guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { error = "Title is required."; return }
                         error = nil
 
+                        let now = Date()
+                        let defaultEnd = Calendar.current.date(byAdding: .month, value: 3, to: now) ?? now
                         let new = Listing(
                             id: UUID().uuidString,
                             title: title,
                             price: p,
                             bedrooms: bedrooms,
-                            neighborhood: neighborhood.isEmpty ? "Seattle" : neighborhood,
+                            apartmentBuilding: apartmentBuilding.isEmpty ? "Seattle" : apartmentBuilding,
                             furnished: furnished,
-                            description: description.isEmpty ? "No description yet." : description
+                            description: description.isEmpty ? "No description yet." : description,
+                            genderPreference: "Any",
+                            leaseStart: now,
+                            leaseEnd: defaultEnd,
+                            schoolYearPreference: "Any",
+                            userId: userId
                         )
                         listings.insert(new, at: 0)
-                        title = ""; description = ""; price = ""; bedrooms = 1; neighborhood = ""; furnished = false
+                        title = ""; description = ""; price = ""; bedrooms = 1; apartmentBuilding = ""; furnished = false
                     } label: {
                         Text("Post listing").frame(maxWidth: .infinity)
                     }

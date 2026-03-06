@@ -29,7 +29,7 @@ struct ListingDetailView: View {
                         HStack(spacing: 8) {
                             Pill("$\(listing.price)/mo")
                             Pill("\(listing.bedrooms) BR")
-                            Pill(listing.neighborhood)
+                            Pill(listing.apartmentBuilding)
                         }
 
                         Text(listing.description)

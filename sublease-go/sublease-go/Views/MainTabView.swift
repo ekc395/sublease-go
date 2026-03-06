@@ -13,6 +13,9 @@ struct MainTabView: View {
     @Binding var filters: Filters
     @Binding var threads: [Thread]
 
+    private let listingsService = FirebaseListingsService()
+    @State private var hasLoadedListings = false
+
     var body: some View {
         TabView {
             ListingFeedView(listings: $listings, filters: $filters, threads: $threads)
@@ -20,7 +23,7 @@ struct MainTabView: View {
                     Label("Feed", systemImage: "square.grid.2x2")
                 }
 
-            CreateListingView(listings: $listings)
+            CreateListingView(listings: $listings, userId: uwEmail)
                 .tabItem {
                     Label("Post", systemImage: "plus.circle")
                 }
@@ -34,6 +37,21 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person")
                 }
+        }
+        .task {
+            await loadListingsIfNeeded()
+        }
+    }
+
+    @MainActor
+    private func loadListingsIfNeeded() async {
+        guard !hasLoadedListings else { return }
+        hasLoadedListings = true
+
+        do {
+            listings = try await listingsService.fetchListings()
+        } catch {
+            print("Failed to load listings from Firestore: \(error)")
         }
     }
 }
