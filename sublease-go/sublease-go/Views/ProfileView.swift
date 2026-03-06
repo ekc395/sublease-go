@@ -11,6 +11,7 @@ import SwiftUI
 struct ProfileView: View {
     let uwEmail: String
     let listings: [Listing]
+    @EnvironmentObject var auth: AuthManager
 
     /// Only listings belonging to the current user (used for "My Listings").
     private var myListings: [Listing] {
@@ -36,6 +37,13 @@ struct ProfileView: View {
                         }
                     }
                     .card()
+                    
+                    Button {
+                        auth.signOut()
+                    } label: {
+                        Text("Sign out").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
                 }
                 .padding(16)
             }

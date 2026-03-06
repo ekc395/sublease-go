@@ -17,6 +17,7 @@ struct sublease_goApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(AuthManager.shared)
         }
     }
 }

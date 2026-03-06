@@ -9,8 +9,8 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Binding var uwEmail: String
-    @Binding var isAuthed: Bool
+    @EnvironmentObject var auth: AuthManager
+    @State private var emailInput = ""
     @State private var error: String?
 
     var body: some View {
@@ -24,7 +24,7 @@ struct LoginView: View {
                 Text("UW-only subleases. Verify your @uw.edu email to continue.")
                     .foregroundStyle(.secondary)
 
-                TextField("yourname@uw.edu", text: $uwEmail)
+                TextField("yourname@uw.edu", text: $emailInput)
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)
                     .autocorrectionDisabled()
@@ -33,13 +33,13 @@ struct LoginView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
                 Button {
-                    let email = uwEmail.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                    let email = emailInput.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
                     guard email.hasSuffix("@uw.edu") else {
                         error = "Please use a @uw.edu email."
                         return
                     }
                     error = nil
-                    withAnimation(.spring()) { isAuthed = true }
+                    auth.login(email: email)
                 } label: {
                     Text("Continue").frame(maxWidth: .infinity)
                 }

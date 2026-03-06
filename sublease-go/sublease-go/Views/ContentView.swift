@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var isAuthed = false
-    @State private var uwEmail = ""
+    @EnvironmentObject var auth: AuthManager
 
     @State private var listings: [Listing] = []
     @State private var filters = Filters()
@@ -17,15 +16,15 @@ struct ContentView: View {
 
     var body: some View {
         Group {
-            if isAuthed {
+            if auth.isAuthed {
                 MainTabView(
-                    uwEmail: uwEmail,
+                    uwEmail: auth.uwEmail,
                     listings: $listings,
                     filters: $filters,
                     threads: $threads
                 )
             } else {
-                LoginView(uwEmail: $uwEmail, isAuthed: $isAuthed)
+                LoginView()
             }
         }
         .tint(.black)
@@ -34,4 +33,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(AuthManager.shared)
 }
