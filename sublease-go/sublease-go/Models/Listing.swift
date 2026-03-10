@@ -20,6 +20,7 @@ struct Listing: Identifiable, Hashable {
     var leaseEnd: Date
     var schoolYearPreference: String
     var userId: String
+    var ownerName: String
 }
 
 struct Filters: Hashable {

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ListingFeedView: View {
+    let currentUserId: String
+    let currentUserName: String
     @Binding var listings: [Listing]
     @Binding var filters: Filters
     @Binding var threads: [Thread]
@@ -43,7 +45,12 @@ struct ListingFeedView: View {
                 FiltersView(filters: $filters)
             }
             .sheet(item: $selectedListing) { listing in
-                ListingDetailView(listing: listing, threads: $threads)
+                ListingDetailView(
+                    listing: listing,
+                    currentUserId: currentUserId,
+                    currentUserName: currentUserName,
+                    threads: $threads
+                )
             }
         }
     }

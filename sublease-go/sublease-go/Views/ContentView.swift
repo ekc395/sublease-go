@@ -17,7 +17,7 @@ struct ContentView: View {
     @State private var bio = ""
     @State private var listings: [Listing] = []
     @State private var filters = Filters()
-    @State private var threads: [Thread] = Thread.mock
+    @State private var threads: [Thread] = []
 
     var body: some View {
         Group {

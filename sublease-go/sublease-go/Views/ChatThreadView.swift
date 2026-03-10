@@ -6,33 +6,42 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct ChatThreadView: View {
     let threadId: String
+    let currentUserId: String
     @Binding var threads: [Thread]
-    @State private var draft = ""
 
-    private var threadIndex: Int? { threads.firstIndex(where: { $0.id == threadId }) }
+    @State private var draft = ""
+    @State private var liveMessages: [Message] = []
+    @State private var listener: ListenerRegistration?
+
+    private let messagingService = FirebaseMessagingService()
+
+    private var threadIndex: Int? {
+        threads.firstIndex(where: { $0.id == threadId })
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 10) {
-                    if let idx = threadIndex {
-                        ForEach(threads[idx].messages) { message in
-                            HStack {
-                                if (message.isMe) {
-                                    Spacer()
-                                }
-                                Text(message.body)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 10)
-                                    .background(message.isMe ? Color.black : Color.black.opacity(0.08))
-                                    .foregroundStyle(message.isMe ? .white : .primary)
-                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                                if (!message.isMe) {
-                                    Spacer()
-                                }
+                    ForEach(liveMessages) { message in
+                        HStack {
+                            if message.isMe {
+                                Spacer()
+                            }
+
+                            Text(message.body)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
+                                .background(message.isMe ? Color.black : Color.black.opacity(0.08))
+                                .foregroundStyle(message.isMe ? .white : .primary)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                            if !message.isMe {
+                                Spacer()
                             }
                         }
                     }
@@ -48,12 +57,20 @@ struct ChatThreadView: View {
 
                 Button {
                     let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !text.isEmpty, let idx = threadIndex else { return }
+                    guard !text.isEmpty else { return }
                     draft = ""
-                    let msg = Message(id: UUID().uuidString, body: text, isMe: true, sentAt: Date())
-                    threads[idx].messages.append(msg)
-                    threads[idx].lastPreview = text
-                    threads[idx].updatedAt = Date()
+
+                    Task {
+                        do {
+                            try await messagingService.sendMessage(
+                                threadId: threadId,
+                                body: text,
+                                senderId: currentUserId
+                            )
+                        } catch {
+                            print("Failed to send message:", error.localizedDescription)
+                        }
+                    }
                 } label: {
                     Image(systemName: "paperplane.fill")
                 }
@@ -64,5 +81,23 @@ struct ChatThreadView: View {
         }
         .navigationTitle(threads.first(where: { $0.id == threadId })?.otherName ?? "Chat")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            listener = messagingService.listenForMessages(
+                threadId: threadId,
+                currentUserId: currentUserId
+            ) { messages in
+                self.liveMessages = messages
+
+                if let idx = threadIndex, let last = messages.last {
+                    threads[idx].lastPreview = last.body
+                    threads[idx].updatedAt = last.sentAt
+                    threads[idx].messages = messages
+                }
+            }
+        }
+        .onDisappear {
+            listener?.remove()
+            listener = nil
+        }
     }
 }

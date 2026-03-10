@@ -10,6 +10,7 @@ import SwiftUI
 struct CreateListingView: View {
     @Binding var listings: [Listing]
     var userId: String = ""
+    var ownerName: String = ""
 
     private let listingsService = FirebaseListingsService()
 
@@ -28,6 +29,7 @@ struct CreateListingView: View {
                 Section("Listing") {
                     TextField("Title", text: $title)
                     TextField("Apartment / Building", text: $apartmentBuilding)
+                        .textInputAutocapitalization(.words)
                     TextField("Monthly price", text: $price)
                         .keyboardType(.numberPad)
                     Stepper("Bedrooms: \(bedrooms)", value: $bedrooms, in: 1...10)
@@ -41,8 +43,16 @@ struct CreateListingView: View {
 
                 Section {
                     Button {
-                        guard let p = Int(price), p > 0 else { error = "Enter a valid price."; return }
-                        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { error = "Title is required."; return }
+                        guard let p = Int(price), p > 0 else {
+                            error = "Enter a valid price."
+                            return
+                        }
+
+                        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                            error = "Title is required."
+                            return
+                        }
+
                         error = nil
                         isPosting = true
 
@@ -50,6 +60,7 @@ struct CreateListingView: View {
                         let defaultEnd = Calendar.current.date(byAdding: .month, value: 3, to: now) ?? now
                         let building = apartmentBuilding.isEmpty ? "Seattle" : apartmentBuilding
                         let desc = description.isEmpty ? "No description yet." : description
+                        let displayOwnerName = ownerName.isEmpty ? userId : ownerName
 
                         Task {
                             do {
@@ -64,8 +75,10 @@ struct CreateListingView: View {
                                     schoolYearPreference: "Any",
                                     leaseStart: now,
                                     leaseEnd: defaultEnd,
-                                    userId: userId
+                                    userId: userId,
+                                    ownerName: displayOwnerName
                                 )
+
                                 await MainActor.run {
                                     let new = Listing(
                                         id: docId,
@@ -79,10 +92,17 @@ struct CreateListingView: View {
                                         leaseStart: now,
                                         leaseEnd: defaultEnd,
                                         schoolYearPreference: "Any",
-                                        userId: userId
+                                        userId: userId,
+                                        ownerName: displayOwnerName
                                     )
+
                                     listings.insert(new, at: 0)
-                                    title = ""; description = ""; price = ""; bedrooms = 1; apartmentBuilding = ""; furnished = false
+                                    title = ""
+                                    description = ""
+                                    price = ""
+                                    bedrooms = 1
+                                    apartmentBuilding = ""
+                                    furnished = false
                                     isPosting = false
                                 }
                             } catch let err {
@@ -93,7 +113,8 @@ struct CreateListingView: View {
                             }
                         }
                     } label: {
-                        Text(isPosting ? "Posting…" : "Post listing").frame(maxWidth: .infinity)
+                        Text(isPosting ? "Posting…" : "Post listing")
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.black)
@@ -101,7 +122,10 @@ struct CreateListingView: View {
                 }
 
                 if let error {
-                    Section { Text(error).foregroundStyle(.red) }
+                    Section {
+                        Text(error)
+                            .foregroundStyle(.red)
+                    }
                 }
             }
             .navigationTitle("Create")

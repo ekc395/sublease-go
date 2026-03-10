@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct MainTabView: View {
     let uwEmail: String
@@ -14,24 +15,43 @@ struct MainTabView: View {
     @Binding var threads: [Thread]
 
     private let listingsService = FirebaseListingsService()
+    private let messagingService = FirebaseMessagingService()
+
     @State private var hasLoadedListings = false
+    @State private var threadListener: ListenerRegistration?
+
+    private var currentUserId: String { uwEmail }
+    private var currentUserName: String { uwEmail }
 
     var body: some View {
         TabView {
-            ListingFeedView(listings: $listings, filters: $filters, threads: $threads)
-                .tabItem {
-                    Label("Feed", systemImage: "square.grid.2x2")
-                }
+            ListingFeedView(
+                currentUserId: currentUserId,
+                currentUserName: currentUserName,
+                listings: $listings,
+                filters: $filters,
+                threads: $threads
+            )
+            .tabItem {
+                Label("Feed", systemImage: "square.grid.2x2")
+            }
 
-            CreateListingView(listings: $listings, userId: uwEmail)
-                .tabItem {
-                    Label("Post", systemImage: "plus.circle")
-                }
+            CreateListingView(
+                listings: $listings,
+                userId: currentUserId,
+                ownerName: currentUserName
+            )
+            .tabItem {
+                Label("Post", systemImage: "plus.circle")
+            }
 
-            MessagesView(threads: $threads)
-                .tabItem {
-                    Label("Messages", systemImage: "message")
-                }
+            MessagesView(
+                currentUserId: currentUserId,
+                threads: $threads
+            )
+            .tabItem {
+                Label("Messages", systemImage: "message")
+            }
 
             ProfileView(uwEmail: uwEmail, listings: listings)
                 .tabItem {
@@ -40,6 +60,19 @@ struct MainTabView: View {
         }
         .task {
             await loadListingsIfNeeded()
+            startThreadsListener()
+        }
+        .onDisappear {
+            threadListener?.remove()
+            threadListener = nil
+        }
+    }
+
+    private func startThreadsListener() {
+        threadListener?.remove()
+
+        threadListener = messagingService.listenForThreads(currentUserId: currentUserId) { newThreads in
+            self.threads = newThreads
         }
     }
 

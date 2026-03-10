@@ -9,9 +9,14 @@ import SwiftUI
 
 struct ListingDetailView: View {
     let listing: Listing
+    let currentUserId: String
+    let currentUserName: String
     @Binding var threads: [Thread]
+
     @Environment(\.dismiss) private var dismiss
     @State private var pushToThread: Thread? = nil
+
+    private let messagingService = FirebaseMessagingService()
 
     var body: some View {
         NavigationStack {
@@ -37,22 +42,40 @@ struct ListingDetailView: View {
                     .card()
 
                     Button {
-                        if let existing = threads.first(where: { $0.listingId == listing.id }) {
-                            pushToThread = existing
-                        } else {
-                            let new = Thread(
-                                id: UUID().uuidString,
-                                listingId: listing.id,
-                                otherName: "Lister",
-                                lastPreview: "New thread",
-                                updatedAt: Date(),
-                                messages: []
-                            )
-                            threads.insert(new, at: 0)
-                            pushToThread = new
+                        Task {
+                            do {
+                                let threadId = try await messagingService.createOrGetThread(
+                                    listingId: listing.id,
+                                    listingTitle: listing.title,
+                                    currentUserId: currentUserId,
+                                    currentUserName: currentUserName,
+                                    otherUserId: listing.userId,
+                                    otherUserName: listing.ownerName
+                                )
+
+                                await MainActor.run {
+                                    if let existing = threads.first(where: { $0.id == threadId }) {
+                                        pushToThread = existing
+                                    } else {
+                                        let new = Thread(
+                                            id: threadId,
+                                            listingId: listing.id,
+                                            otherName: listing.ownerName,
+                                            lastPreview: "",
+                                            updatedAt: Date(),
+                                            messages: []
+                                        )
+                                        threads.insert(new, at: 0)
+                                        pushToThread = new
+                                    }
+                                }
+                            } catch {
+                                print("Failed to create/get thread:", error.localizedDescription)
+                            }
                         }
                     } label: {
-                        Text("Message lister").frame(maxWidth: .infinity)
+                        Text("Message lister")
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.black)
@@ -62,10 +85,16 @@ struct ListingDetailView: View {
             .navigationTitle("Listing")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) { Button("Close") { dismiss() } }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Close") { dismiss() }
+                }
             }
             .navigationDestination(item: $pushToThread) { thread in
-                ChatThreadView(threadId: thread.id, threads: $threads)
+                ChatThreadView(
+                    threadId: thread.id,
+                    currentUserId: currentUserId,
+                    threads: $threads
+                )
             }
         }
     }

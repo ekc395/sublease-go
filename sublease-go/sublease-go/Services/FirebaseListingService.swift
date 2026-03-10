@@ -32,6 +32,7 @@ final class FirebaseListingsService {
             let genderPreference = data["genderPreference"] as? String ?? "Any"
             let schoolYearPreference = data["schoolYearPreference"] as? String ?? "Any"
             let userId = data["userId"] as? String ?? ""
+            let ownerName = data["ownerName"] as? String ?? userId
             let leaseStart = (data["leaseStart"] as? Timestamp)?.dateValue() ?? Date()
             let leaseEnd = (data["leaseEnd"] as? Timestamp)?.dateValue() ?? Date().addingTimeInterval(90 * 24 * 3600)
 
@@ -47,12 +48,12 @@ final class FirebaseListingsService {
                 leaseStart: leaseStart,
                 leaseEnd: leaseEnd,
                 schoolYearPreference: schoolYearPreference,
-                userId: userId
+                userId: userId,
+                ownerName: ownerName
             )
         }
     }
 
-    /// Creates a listing in Firestore and returns the new document ID.
     func createListing(
         title: String,
         description: String,
@@ -64,7 +65,8 @@ final class FirebaseListingsService {
         schoolYearPreference: String,
         leaseStart: Date,
         leaseEnd: Date,
-        userId: String
+        userId: String,
+        ownerName: String
     ) async throws -> String {
         let data: [String: Any] = [
             "title": title,
@@ -77,7 +79,8 @@ final class FirebaseListingsService {
             "schoolYearPreference": schoolYearPreference,
             "leaseStart": Timestamp(date: leaseStart),
             "leaseEnd": Timestamp(date: leaseEnd),
-            "userId": userId
+            "userId": userId,
+            "ownerName": ownerName
         ]
 
         let ref = try await db.collection("listings").addDocument(data: data)
