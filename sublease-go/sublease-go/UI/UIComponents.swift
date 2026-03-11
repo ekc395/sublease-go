@@ -28,7 +28,7 @@ extension View {
     func card() -> some View {
         self
             .padding(14)
-            .background(Color(.secondarySystemBackground))
+            .background(Color(red: 0.938, green: 0.928, blue: 0.973))
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
