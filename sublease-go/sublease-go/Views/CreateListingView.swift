@@ -167,19 +167,3 @@ struct CreateListingView: View {
         }
     }
 }
-
-#Preview {
-    CreateListingPreview()
-}
-
-private struct CreateListingPreview: View {
-    @State private var listings: [Listing] = []
-
-    var body: some View {
-        CreateListingView(
-            listings: $listings,
-            userId: "hanna@uw.edu",
-            ownerName: "Hanna Pan"
-        )
-    }
-}
