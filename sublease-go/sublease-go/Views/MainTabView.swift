@@ -22,50 +22,64 @@ struct MainTabView: View {
 
     private var currentUserId: String { uwEmail }
     private var currentUserName: String { uwEmail }
+    
+    private let uwPurple = Color(red: 0.227, green: 0.114, blue: 0.514)
+    private let uwGold = Color(red: 0.929, green: 0.710, blue: 0.102)
+    private let background = Color(red: 0.969, green: 0.965, blue: 0.980)
+    private let textPrimary = Color(red: 0.122, green: 0.082, blue: 0.216)
+    private let textMuted = Color(red: 0.451, green: 0.400, blue: 0.557)
+    private let textBox = Color(red: 0.938, green: 0.928, blue: 0.973)
 
     var body: some View {
-        TabView {
-            ListingFeedView(
-                currentUserId: currentUserId,
-                currentUserName: currentUserName,
-                listings: $listings,
-                filters: $filters,
-                threads: $threads
-            )
-            .tabItem {
-                Label("Feed", systemImage: "square.grid.2x2")
-            }
-
-            CreateListingView(
-                listings: $listings,
-                userId: currentUserId,
-                ownerName: currentUserName
-            )
-            .tabItem {
-                Label("Post", systemImage: "plus.circle")
-            }
-
-            MessagesView(
-                currentUserId: currentUserId,
-                threads: $threads
-            )
-            .tabItem {
-                Label("Messages", systemImage: "message")
-            }
-
-            ProfileView(uwEmail: uwEmail, listings: listings)
+        ZStack {
+            
+            TabView {
+                ListingFeedView(
+                    currentUserId: currentUserId,
+                    currentUserName: currentUserName,
+                    listings: $listings,
+                    filters: $filters,
+                    threads: $threads
+                )
                 .tabItem {
-                    Label("Profile", systemImage: "person")
+                    Label("Feed", systemImage: "square.grid.2x2")
                 }
+
+                CreateListingView(
+                    listings: $listings,
+                    userId: currentUserId,
+                    ownerName: currentUserName
+                )
+                .tabItem {
+                    Label("Post", systemImage: "plus.circle")
+                }
+
+                MessagesView(
+                    currentUserId: currentUserId,
+                    threads: $threads
+                )
+                .tabItem {
+                    Label("Messages", systemImage: "message")
+                }
+
+                ProfileView(uwEmail: uwEmail, listings: listings)
+                    .tabItem {
+                        Label("Profile", systemImage: "person")
+                    }
+            }
+            .foregroundStyle(textPrimary)
+            .tint(uwPurple)
+            .task {
+                await loadListingsIfNeeded()
+                startThreadsListener()
+            }
+            .onDisappear {
+                threadListener?.remove()
+                threadListener = nil
+            }
+            .background(background)
         }
-        .task {
-            await loadListingsIfNeeded()
-            startThreadsListener()
-        }
-        .onDisappear {
-            threadListener?.remove()
-            threadListener = nil
-        }
+        
     }
 
     private func startThreadsListener() {

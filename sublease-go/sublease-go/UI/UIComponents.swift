@@ -20,6 +20,7 @@ struct Pill: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(Color.black.opacity(0.06))
+            .foregroundStyle(Color(red: 0.122, green: 0.082, blue: 0.216))
             .clipShape(Capsule())
     }
 }
@@ -41,13 +42,16 @@ struct ListingCard: View {
             HStack(alignment: .firstTextBaseline) {
                 Text("$\(listing.price)")
                     .font(.title3.weight(.semibold))
-                Text("/mo").foregroundStyle(.secondary)
+                    .foregroundStyle(Color(red: 0.122, green: 0.082, blue: 0.216))
+                Text("/mo")
+                    .foregroundStyle(Color(red: 0.451, green: 0.400, blue: 0.557))
                 Spacer()
                 Pill("\(listing.bedrooms) BR")
             }
 
             Text(listing.title)
                 .font(.headline)
+                .foregroundStyle(Color(red: 0.122, green: 0.082, blue: 0.216))
 
             HStack(spacing: 8) {
                 Pill(listing.apartmentBuilding)
