@@ -43,7 +43,7 @@ struct ChatThreadView: View {
                             Text(message.body)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 10)
-                                .background(message.isMe ? textPrimary : textMuted)
+                                .background(message.isMe ? textPrimary : textBox)
                                 .foregroundStyle(message.isMe ? .white : .primary)
                                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
